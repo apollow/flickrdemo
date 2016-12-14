@@ -1,4 +1,4 @@
-package flickrchallenge.tinder.com.flickrproject;
+package flickrchallenge.tinder.com.flickrproject.Activity;
 
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -8,6 +8,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import flickrchallenge.tinder.com.flickrproject.Model.FlickrImage;
+import flickrchallenge.tinder.com.flickrproject.R;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -48,5 +50,9 @@ public class MainActivity extends AppCompatActivity {
       }
 
       return super.onOptionsItemSelected(item);
+   }
+
+   public void toDetailImage(FlickrImage image) {
+
    }
 }
