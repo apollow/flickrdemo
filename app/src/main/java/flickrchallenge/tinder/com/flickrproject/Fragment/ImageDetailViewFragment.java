@@ -1,37 +1,44 @@
 package flickrchallenge.tinder.com.flickrproject.Fragment;
 
-import android.animation.Animator;
-import android.animation.ObjectAnimator;
+import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.support.design.widget.FloatingActionButton;
+import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
+import com.android.volley.Request;
+import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.StringRequest;
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
-import flickrchallenge.tinder.com.flickrproject.Activity.MainActivity;
-import flickrchallenge.tinder.com.flickrproject.Adapters.FlickrImageAdapter;
 import flickrchallenge.tinder.com.flickrproject.Constants.FlickrAPIUrl;
 import flickrchallenge.tinder.com.flickrproject.Helper.RequestEntity;
+import flickrchallenge.tinder.com.flickrproject.Model.DetailedFlickrImage;
 import flickrchallenge.tinder.com.flickrproject.Model.FlickrImage;
 import flickrchallenge.tinder.com.flickrproject.R;
 
-import java.util.LinkedList;
+import static flickrchallenge.tinder.com.flickrproject.R.id.fab;
 
 /**
  * Created by apollow on 12/14/16.
  */
 public class ImageDetailViewFragment extends Fragment {
-   SubsamplingScaleImageView imageView;
-   FlickrImage image;
-   Context mContext;
+   private SubsamplingScaleImageView imageView;
+   private FlickrImage image;
+   private TextView detailedImageTextView;
+   private Context mContext;
+   private int[] orientations = { SubsamplingScaleImageView.ORIENTATION_0,
+           SubsamplingScaleImageView.ORIENTATION_90,
+           SubsamplingScaleImageView.ORIENTATION_180,
+           SubsamplingScaleImageView.ORIENTATION_270
+   };
+   private int orientationNdx = 0;
 
    public static ImageDetailViewFragment newInstance(Context ctx, FlickrImage image) {
       ImageDetailViewFragment myFragment = (ImageDetailViewFragment)
@@ -43,14 +50,46 @@ public class ImageDetailViewFragment extends Fragment {
       return myFragment;
    }
 
+   private Response.ErrorListener errorListener = new Response.ErrorListener() {
+      @Override
+      public void onErrorResponse(VolleyError error) {
+         Toast.makeText(mContext, "Couldn't retrieve Flickr data", Toast.LENGTH_SHORT).show();
+      }
+   };
+
+   private Response.Listener<String> successListener = new Response.Listener<String>() {
+      @Override
+      public void onResponse(String response) {
+         bindDetailsOntoUI(DetailedFlickrImage.fromJSON(response));
+      }
+   };
+
    @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container,
                             Bundle savedInstanceState) {
-      View v = inflater.inflate(R.layout.fragment_recent_photos, container, false);
+      View v = inflater.inflate(R.layout.fragment_detail_image, container, false);
       mContext = inflater.getContext();
       imageView = (SubsamplingScaleImageView)v.findViewById(R.id.image_view);
+      detailedImageTextView = (TextView)v.findViewById(R.id.field_detail_image);
+
+      detailedImageTextView.setMovementMethod(new ScrollingMovementMethod());
+
+      FloatingActionButton fab = (FloatingActionButton) v.findViewById(R.id.fab);
+      fab.setOnClickListener(new View.OnClickListener() {
+         @Override
+         public void onClick(View view) {
+            orientationNdx = (orientationNdx + 1) % (orientations.length);
+            imageView.setOrientation(orientations[orientationNdx]);
+         }
+      });
 
       return v;
+   }
+
+   @Override
+   public void onCreate(Bundle savedInstanceState) {
+      super.onCreate(savedInstanceState);
+      image = getArguments().getParcelable("image");
    }
 
    @Override
@@ -63,7 +102,7 @@ public class ImageDetailViewFragment extends Fragment {
                  public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
                     imageView.setImage(ImageSource.bitmap(response.getBitmap()));
                     if (!isImmediate) {
-                       Animator anim = ObjectAnimator.ofFloat(imageView, "alpha", 0.3f, 1).setDuration(ANIM_DURATION);
+//                       Animator anim = ObjectAnimator.ofFloat(imageView, "alpha", 0.3f, 1).setDuration(ANIM_DURATION);
 //                       anim.addListener(animListener);
 //                       anim.start();
                     }
@@ -72,10 +111,29 @@ public class ImageDetailViewFragment extends Fragment {
                  @Override
                  public void onErrorResponse(VolleyError error) {
                     imageView.setImage(ImageSource.resource(R.drawable.flickr_placeholder));
-                    Animator anim = ObjectAnimator.ofFloat(imageView, "alpha", 0.3f, 1).setDuration(ANIM_DURATION);
+//                    Animator anim = ObjectAnimator.ofFloat(imageView, "alpha", 0.3f, 1).setDuration(ANIM_DURATION);
 //                    anim.addListener(animListener);
 //                    anim.start();
                  }
               });
+      getImageDetails();
+   }
+
+   private void getImageDetails() {
+      String request = FlickrAPIUrl.FLICKR_IMAGE_DETAILS(image);
+      StringRequest imagesRequest = new StringRequest(Request.Method.GET, request,
+              successListener, errorListener);
+      imagesRequest.setShouldCache(false);
+      RequestEntity.getInstance(mContext).addToRequestQueue(imagesRequest);
+   }
+
+   private void bindDetailsOntoUI(DetailedFlickrImage detailedFlickrImage) {
+      String detailText = "Title: " + detailedFlickrImage.getTitle() + "\n" +
+              "Owner: " + detailedFlickrImage.getOwner() + "\n" +
+              "Taken On: " + detailedFlickrImage.getTaken() + "\n" +
+              "Views: " + detailedFlickrImage.getViews() + "\n" +
+              "Description: " + detailedFlickrImage.getDescription();
+
+      detailedImageTextView.setText(detailText);
    }
 }

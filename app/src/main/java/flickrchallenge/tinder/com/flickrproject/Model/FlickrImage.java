@@ -23,6 +23,9 @@ public class FlickrImage implements Parcelable {
       this.title = title;
    }
 
+
+   public String getTitle() { return title; }
+
    public String getFarmId() {
       return farmId;
    }
@@ -39,23 +42,6 @@ public class FlickrImage implements Parcelable {
       return id;
    }
 
-   public static List<FlickrImage> fromJSONAsList(String response) {
-      ArrayList<FlickrImage> images = new ArrayList<>();
-      JsonElement photos = JSONParser.getElement(response, "photos");
-
-      for (JsonElement photo : JSONParser.getElementList(photos, "photo")) {
-         FlickrImage image = new FlickrImage(
-                 JSONParser.stringParse(photo, "id"),
-                 JSONParser.stringParse(photo, "farm"),
-                 JSONParser.stringParse(photo, "server"),
-                 JSONParser.stringParse(photo, "secret"),
-                 JSONParser.stringParse(photo, "title")
-                 );
-         images.add(image);
-      }
-
-      return images;
-   }
 
    @Override
    public int describeContents() {
@@ -90,4 +76,22 @@ public class FlickrImage implements Parcelable {
          return new FlickrImage[size];
       }
    };
+
+   public static List<FlickrImage> fromJSONAsList(String response) {
+      ArrayList<FlickrImage> images = new ArrayList<>();
+      JsonElement photos = JSONParser.getElement(response, "photos");
+
+      for (JsonElement photo : JSONParser.getElementList(photos, "photo")) {
+         FlickrImage image = new FlickrImage(
+                 JSONParser.stringParse(photo, "id"),
+                 JSONParser.stringParse(photo, "farm"),
+                 JSONParser.stringParse(photo, "server"),
+                 JSONParser.stringParse(photo, "secret"),
+                 JSONParser.stringParse(photo, "title")
+         );
+         images.add(image);
+      }
+
+      return images;
+   }
 }

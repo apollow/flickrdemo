@@ -54,6 +54,7 @@ public class FlickrImageAdapter extends RecyclerView.Adapter<FlickrImageAdapter.
          super(v);
          name = (TextView) v.findViewById(R.id.field_image_title);
          icon = (ImageView) v.findViewById(R.id.image_icon);
+         v.setOnClickListener(this);
       }
 
       @Override
@@ -71,6 +72,7 @@ public class FlickrImageAdapter extends RecyclerView.Adapter<FlickrImageAdapter.
    public void onBindViewHolder(final ImageViewHolder holder, int position) {
       final FlickrImage item = mList.get(position);
 
+      holder.name.setText(item.getTitle());
       final ImageView imageView = holder.icon;
 
       final Animator.AnimatorListener animListener = new Animator.AnimatorListener() {

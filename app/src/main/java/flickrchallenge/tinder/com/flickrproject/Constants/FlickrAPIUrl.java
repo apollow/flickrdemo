@@ -17,9 +17,13 @@ public class FlickrAPIUrl {
    public static final String GET_RECENT = DOMAIN + "&method=flickr.photos.getRecent" + apiURLTail;
 
    public static String FLICKR_IMAGE_URL(FlickrImage image) {
-      String test = "https://farm" + image.getFarmId() + ".staticflickr.com/" + image.getServerId() + "/" + image.getId()
+      return "https://farm" + image.getFarmId() + ".staticflickr.com/" + image.getServerId() + "/" + image.getId()
               + "_" + image.getSecret()  + ".jpg";
-      return test;
+   }
+
+   public static String FLICKR_IMAGE_DETAILS(FlickrImage image) {
+      https://api.flickr.com/services/rest/?&method=flickr.photos.getInfo&photo_id=6717637369&api_key=ea059cc4ae1714a5dd0dbfbde4699674&format=json&nojsoncallback=1
+      return DOMAIN + "&method=flickr.photos.getInfo&photo_id=" + image.getId() + apiURLTail;
    }
 
 

@@ -1,7 +1,7 @@
 package flickrchallenge.tinder.com.flickrproject.Fragment;
 
+import android.app.Fragment;
 import android.content.Context;
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -76,7 +76,6 @@ public class RecentFragment extends Fragment {
       imageRecyclerView.setLayoutManager(llm);
       imageRecyclerView.setAdapter(flickrImageAdapter);
 
-
       return v;
    }
 
@@ -91,9 +90,7 @@ public class RecentFragment extends Fragment {
       String request = FlickrAPIUrl.GET_RECENT;
       StringRequest imagesRequest = new StringRequest(Request.Method.GET, request,
               successListener, errorListener);
-//      videoRequest.setShouldCache(false);
+      imagesRequest.setShouldCache(false);
       RequestEntity.getInstance(mContext).addToRequestQueue(imagesRequest);
    }
-
-
 }
